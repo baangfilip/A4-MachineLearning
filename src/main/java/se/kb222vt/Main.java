@@ -3,25 +3,46 @@ package se.kb222vt;
 import weka.classifiers.evaluation.Evaluation;
 import weka.classifiers.functions.Logistic;
 import weka.classifiers.functions.MultilayerPerceptron;
+import weka.core.Instance;
 import weka.core.Instances;
-import weka.core.Utils;
 import weka.core.converters.ConverterUtils.DataSource;
+
+import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.HashMap;
+import java.util.Map.Entry;
 import java.util.Random;
+import javafx.application.Application;
+import javafx.scene.Scene;
+import javafx.scene.chart.NumberAxis;
+import javafx.scene.chart.ScatterChart;
+import javafx.scene.chart.XYChart;
+import javafx.stage.Stage;
 
 /*
  * Handbook for Weka API: http://prdownloads.sourceforge.net/weka/WekaManual-3-8-3.pdf?download
+ * ScatterChart with javaFX: https://docs.oracle.com/javafx/2/charts/scatter-chart.htm
  */
-public class Main {
+public class Main extends Application {
 	
-	public static void main(String[] attrs) throws Exception {
-		System.out.println("Im alive!");
+	@Override
+	public void start(Stage stage) throws Exception {
 		//new weka.gui.Main().main(new String[] {}); //start explorer after this
 		Instances spiral = DataSource.read("src/main/resources/data/spiral/spiral.arff");
 		spiral.setClassIndex(2); //There's, 3 attributes and the class attribute is defined last
+		
 		runLinearClassifier(spiral);
 		runNeuralNetworkClassifier(spiral);
-
+		HashMap<String, XYChart.Series<Double, Double>> series = getSeriesFromData(spiral);
+		ScatterChart scatterChart = new ScatterChart(new NumberAxis(), new NumberAxis());
+		for(XYChart.Series<Double, Double> serie : series.values()) {
+			scatterChart.getData().add(serie);
+		}
+        Scene scene  = new Scene(scatterChart, 500, 500);
+        scene.getStylesheets().add("style.css");
+        stage.setScene(scene);
+        stage.show();
+		
 	}
 	
 	/**
@@ -41,7 +62,7 @@ public class Main {
 		 */
 		Evaluation eval = new Evaluation(data);
 		eval.crossValidateModel(logisticClassifier, data, 10, new Random());
-		System.out.println(eval.toSummaryString("\nResults\n\n", false));
+		System.out.println(eval.toSummaryString("Summary", false));
 		System.out.println(eval.toMatrixString());
 		System.out.println("##### End logistic classifier #####");
 	}
@@ -67,12 +88,33 @@ public class Main {
 		 */
 		Evaluation eval = new Evaluation(data);
 		eval.crossValidateModel(multilayerPerceptronClassifier, data, 10, new Random());
-		System.out.println(eval.toSummaryString("\nResults\n\n", false));
+		System.out.println(eval.toSummaryString("Summary", false));
 		System.out.println(eval.toMatrixString());
-		System.out.println("##### Run MultilayerPerceptron classifier #####");
+		System.out.println("##### End MultilayerPerceptron classifier #####");
 	}
 	
-    public boolean returnTrue() {
-        return true;
+	/**
+	 * Get series from the Instances data, expected format of data is {X-cord, Y-cord, Type}
+	 * @param data The data to create a scatter chart from, expected format {Double,Double,String}
+	 */
+    public static HashMap<String, XYChart.Series<Double, Double>> getSeriesFromData(Instances data) {
+    	HashMap<String, XYChart.Series<Double, Double>> series = new HashMap<>(); //<Type, Serie of points>
+    	for(Instance inst : data) {
+    		String[] pointData = inst.toString().split(",");
+			double x = Double.parseDouble(pointData[0]);
+			double y = Double.parseDouble(pointData[1]);
+    		String type = pointData[2];
+    		XYChart.Data<Double, Double> point = new XYChart.Data<>(x, y);
+    		if(series.containsKey(type)) {
+    			series.get(type).getData().add(point);
+    		}else {
+    			//this series isnt in the result hashMap yet, add it
+    			XYChart.Series<Double, Double> serie = new XYChart.Series<Double, Double>();
+    			serie.setName(type);
+    			serie.getData().add(point);
+    			series.put(type, serie);
+    		}
+    	}
+		return series;
     }
 }
