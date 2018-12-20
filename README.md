@@ -6,5 +6,5 @@ Plotting data with javaFX ScatterChart.
 - The source for the data should be in path: src/main/resources/data/spiral/spiral.arff
 - The jar is not a fat jar so to run it you need to manually add dependencies
 
-# Todo
-- Configure build to use gradle 5 and JDK11 to include javaFX in fatJar
+# Possibilities
+- Configure build to use gradle 5 and JDK11 to include javaFX in jar
