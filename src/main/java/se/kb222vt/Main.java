@@ -37,10 +37,10 @@ public class Main extends Application {
 		for(XYChart.Series<Double, Double> serie : series.values()) {
 			scatterChart.getData().add(serie);
 		}
-        Scene scene  = new Scene(scatterChart, 500, 500);
-        scene.getStylesheets().add("style.css");
-        stage.setScene(scene);
-        stage.show();
+		Scene scene  = new Scene(scatterChart, 500, 500);
+		scene.getStylesheets().add("style.css");
+		stage.setScene(scene);
+		stage.show();
 		
 	}
 	
@@ -100,8 +100,8 @@ public class Main extends Application {
     	HashMap<String, XYChart.Series<Double, Double>> series = new HashMap<>(); //<Type, Serie of points>
     	for(Instance inst : data) {
     		String[] pointData = inst.toString().split(",");
-			double x = Double.parseDouble(pointData[0]);
-			double y = Double.parseDouble(pointData[1]);
+    		double x = Double.parseDouble(pointData[0]);
+    		double y = Double.parseDouble(pointData[1]);
     		String type = pointData[2];
     		XYChart.Data<Double, Double> point = new XYChart.Data<>(x, y);
     		if(series.containsKey(type)) {
@@ -114,6 +114,6 @@ public class Main extends Application {
     			series.put(type, serie);
     		}
     	}
-		return series;
+    	return series;
     }
 }
